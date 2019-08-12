@@ -39,7 +39,7 @@ def __init__(self, name,descripton,price,qty):
 class ProductSchema(ma.ModelSchema):
      class Meta:
           # model = product
-          fields = ('name', 'description', 'qty')
+          fields = ('id','name', 'description','price', 'qty')
 
 
 
@@ -49,10 +49,6 @@ class ProductSchema(ma.ModelSchema):
 def index():
      return render_template('index.html')
 
-
-@app.route('/index2')
-def index2():
-     return jsonify({'in': 'progress'})
 
 
 
@@ -72,17 +68,54 @@ def addproduct():
      return render_template('addproduct.html')
 
 
-#APIs Connections
+#APIs Connections/Get product
 
 @app.route('/apiaddproduct')
-def apiaddproduct():
+def apiaddproducts():
      products = product.query.all()
      product_schema = ProductSchema(many=True)
      output = product_schema.dump(products).data
      return jsonify({'user': output})
 
+#alternative
+# @app.route('/apiaddproduct')
+# def apiaddproduct():
+#      products = product.query.all()
+#      product_schema = ProductSchema(many=True)
+#      output = product_schema.dump(products).data
+#      return jsonify(output)
 
 
+#get single product
+# @app.route('/updateapiaddproduct/<id>')
+# def updateapiaddproduct(id):
+#       Product = product.query.get(id)
+#       name = request.json['name']
+#       description= request.json['description']
+#       price=request.json['price']
+#       qty = request.json['qty']
+      
+
+#       product.name=name
+#       product.description=description
+#       product.price=price
+#       product.qty=qty
+      
+#       db.session.comment()
+#       product_schema = ProductSchema()
+#       output = product_schema.dump(Product).data
+#       return jsonify(output)
+
+
+#update single product
+@app.route('/apiaddproduct/<id>', methods=['PUT'])
+def apiaddproduct(id):
+
+      Product = product.query.get(id)
+      product_schema = ProductSchema()
+      output = product_schema.dump(Product).data
+      return jsonify({'user': output})      
+     
 
 
 
