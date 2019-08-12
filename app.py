@@ -1,6 +1,8 @@
 from flask import Flask,request,jsonify,redirect, url_for, render_template, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+# from marshmallow import fields, post_dump, pre_dump
+# import json
 import os
 
 #init app
@@ -34,14 +36,11 @@ def __init__(self, name,descripton,price,qty):
 
 
 #product name
-class ProductSchema(ma.Schema):
+class ProductSchema(ma.ModelSchema):
      class Meta:
-          fields = ('id', 'name', 'description', 'price', 'qty')
+          # model = product
+          fields = ('name', 'description', 'qty')
 
-
-# #init schema
-product_schema = ProductSchema(strict=True)
-products_schema =ProductSchema(many=True,strict=True)
 
 
 
@@ -51,37 +50,39 @@ def index():
      return render_template('index.html')
 
 
-# @app.route('/addproduct', methods=['GET','POST'])
-# def addproduct():
-#      if request.method =='POST':
-#           name = request.form['name']
-#           description = request.form['description']
-#           price = request.form['price']
-#           qty = request.form['qty']
-#           #json
-#           name= request.json['name']
-#           description= request.json['description']
-#           price= request.json['price']
-#           qty= request.json['qty']
-#           new_product = product(name,description,price,qty)
-#           db.session.add(new_product)
-#           db.session.commit()
-#           flash("Registed")
-#           return 'DONE'
-#           # return product_schema.jsonify(new_product)
-#      return render_template('addproduct.html')
+@app.route('/index2')
+def index2():
+     return jsonify({'in': 'progress'})
 
-@app.route('/addproduct', methods=['POST'])
+
+
+
+@app.route('/addproduct', methods=['GET','POST'])
 def addproduct():
-          name= request.json['name']
-          description= request.json['description']
-          price= request.json['price']
-          qty= request.json['qty']
-          new_product = product(name,description,price,qty)
+     if request.method =='POST':
+          name = request.form['name']
+          description = request.form['description']
+          price = request.form['price']
+          qty = request.form['qty']
+          new_product = product(name = name, description = description, price=price,qty=qty)
           db.session.add(new_product)
           db.session.commit()
-          return product_schema.jsonify(new_product)
-     
+          flash("Registed")
+          return redirect(url_for('index'))
+     return render_template('addproduct.html')
+
+
+#APIs Connections
+
+@app.route('/apiaddproduct')
+def apiaddproduct():
+     products = product.query.all()
+     product_schema = ProductSchema(many=True)
+     output = product_schema.dump(products).data
+     return jsonify({'user': output})
+
+
+
 
 
 
